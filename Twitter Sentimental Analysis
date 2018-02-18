@@ -1,0 +1,45 @@
+import tweepy
+from tweepy import Stream
+from tweepy import OAuthHandler
+from tweepy.streaming import StreamListener
+import time
+from textblob import TextBlob
+
+ckey = 'onJgN2bcj5BbklA1J7yC8K7JR'
+csecret = 'nIBnh3Y7YR7nnpo4IRbpGJ777IYrAUffxSqVcwiEKwXQgrWy3D'
+atoken = '113912408-aBSBt00FGmzr4zuBQF7caN7VHhBjzRfpZQLPHgaj'
+asecret = '1XBxoooK29kZa4TUcXjvvp3G59P6oHwdQeqPMpclPSLoL'
+
+
+    
+class listener(StreamListener):
+    def on_data(self, data):
+        try:
+            #print(data)
+            
+            tweet = data.split(',"text":"')[1].split(',"source":"')[0]
+            print(tweet)
+
+            saveThis = str(time.time())+'::'+tweet
+            saveFile = open('twitDB2.csv','a')
+            saveFile.write(saveThis)
+            saveFile.write('\n')
+            saveFile.close()
+          
+            analysis = TextBlob(tweet)
+            print(analysis.sentiment)
+            print()
+            return True
+        except(BaseException, e):
+            print('failed ondata,',str(e))
+            time.sleep(5)
+            
+    def on_error(self, status):
+        print(status)
+
+auth = OAuthHandler(ckey, csecret)
+auth.set_access_token(atoken, asecret)
+
+twitterStream = Stream(auth, listener())
+twitterStream.filter(track=["Narendra Modi"])
+
